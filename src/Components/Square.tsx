@@ -1,12 +1,15 @@
 import * as React from 'react';
-import BombFieldValueType from '../FieldValueType/BombFieldValueType';
-import EmptyFieldValueType from '../FieldValueType/EmptyFieldValueType';
-import IFieldValueType from '../FieldValueType/IFieldValueType';
-import UndefinedFieldValueType from '../FieldValueType/UndefinedFieldValueType';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import FieldValueType from '../Storage/FieldValueType';
 
 interface IComponentProps {
-  state: IFieldValueType;
-  // handleClick: any;
+  fieldValueType: FieldValueType;
+  column: number;
+  row: number;
+
+  onLeftClick(column: number, row: number): any;
+
+  onRightClick(column: number, row: number): any;
 }
 
 class Square extends React.Component<IComponentProps> {
@@ -16,51 +19,72 @@ class Square extends React.Component<IComponentProps> {
 
   public render() {
     return (
-      <button className={this.getClass()} disabled={this.checkDisabled()}>
-        {/* <button className="square btn btn-{this.getTypeClass()}" disabled={this.checkDisabled()} onClick={this.props.handleClick()}> */}
-        {this.getValue()}
-      </button>
+      <td
+        className="text-center"
+        onClick={this.leftClick.bind('', this.props.onLeftClick, this.props.column, this.props.row)}
+        onContextMenu={this.rightClick.bind('', this.props.onRightClick, this.props.column, this.props.row)}
+      >
+        <div className={this.getClass(this.props.fieldValueType)}>
+          {this.getValue(this.props.fieldValueType)}
+        </div>
+      </td>
     );
   }
-  // private handleClick(e: React.MouseEvent<HTMLElement>): void {
-  //   e.preventDefault();
-  // };
 
-  private getValue(): string {
-    if (this.props.state.flag) {
-      return 'flag';
-    }
-
-    if (
-      this.props.state instanceof EmptyFieldValueType ||
-      this.props.state instanceof UndefinedFieldValueType
-    ) {
-      return ' ';
-    }
-
-    if (this.props.state instanceof BombFieldValueType) {
-      return 'x';
-    }
-
-    return this.props.state.value.toString();
-  }
-  private getClass(): string {
-    return `square btn btn-${this.getTypeClass()}`;
+  private getClass(fieldValueType: FieldValueType) {
+    return `btn btn-${this.getTypeClass(fieldValueType)} `;
   }
 
-  private getTypeClass(): string {
-    if (this.props.state.flag) {
-      return 'secondary';
+  private getValue(fieldValueType: FieldValueType) {
+    if (fieldValueType.flag) {
+      return <FontAwesomeIcon icon="flag"/>;
     }
-    if (this.props.state instanceof BombFieldValueType) {
-      return 'danger';
+
+    if ('undefined' === fieldValueType.type || !fieldValueType.clicked) {
+      return <FontAwesomeIcon icon="circle-notch"/>;
+    }
+
+    if ('empty' === fieldValueType.type) {
+      return <FontAwesomeIcon icon="search-minus"/>;
+    }
+
+    if ('bomb' === fieldValueType.type) {
+      return <FontAwesomeIcon icon="bomb"/>;
+    }
+
+    return fieldValueType.value.toString();
+  };
+
+  private getTypeClass(fieldValueType: FieldValueType) {
+    if (fieldValueType.flag) {
+      return 'primary';
+    }
+
+    if (fieldValueType.clicked) {
+      if ('empty' === fieldValueType.type) {
+        return 'secondary';
+      }
+
+      if ('bomb' === fieldValueType.type) {
+        return 'danger';
+      }
+
+      return 'success';
     }
 
     return 'light';
   }
 
-  private checkDisabled(): boolean {
-    return this.props.state.clicked;
+  private leftClick(onLeftClick: any, column: number, row: number, e: React.MouseEvent<HTMLElement>) {
+    e.preventDefault();
+
+    onLeftClick(column, row);
+  }
+
+  private rightClick(onRightClick: any, column: number, row: number, e: React.MouseEvent<HTMLElement>) {
+    e.preventDefault();
+
+    onRightClick(column, row);
   }
 }
 

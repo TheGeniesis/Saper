@@ -109,7 +109,7 @@ class GameState extends React.Component<IComponentProps> {
 
     newFieldData[column][row] = clickedValue;
     if ('empty' === clickedValue.type) {
-      this.revealNearEmptyElements(newFieldData, column, row, [], 0)
+      this.revealNearEmptyElements(newFieldData, column, row, [])
     }
 
     this.setState({fieldData: newFieldData});
@@ -127,12 +127,7 @@ class GameState extends React.Component<IComponentProps> {
     return;
   }
 
-  private revealNearEmptyElements(fieldData: FieldValueType[][], column: number, row: number, excluded: boolean[][] | [], iterator: number) {
-    if (iterator === 10000) {
-      console.log('wszelo');
-      return;
-    }
-    iterator++;
+  private revealNearEmptyElements(fieldData: FieldValueType[][], column: number, row: number, excluded: boolean[][] | []) {
     for (const neighboringElement of this.getNeighboringElements(column, row)) {
       if (!this.fieldDataElemExists(neighboringElement.column, neighboringElement.row)) {
         continue;
@@ -151,8 +146,8 @@ class GameState extends React.Component<IComponentProps> {
       if ('empty' === this.state.fieldData[neighboringElement.column][neighboringElement.row].type) {
         newValue = Object.assign({}, this.state.fieldData[column][row]);
         fieldData[column][row] = newValue;
-        this.revealNearEmptyElements(fieldData, neighboringElement.column, neighboringElement.row, excluded, iterator);
-      } else if ('empty' === this.state.fieldData[column][row].type){
+        this.revealNearEmptyElements(fieldData, neighboringElement.column, neighboringElement.row, excluded);
+      } else if ('empty' === this.state.fieldData[column][row].type) {
         newValue = Object.assign({}, this.state.fieldData[neighboringElement.column][neighboringElement.row]);
         fieldData[neighboringElement.column][neighboringElement.row] = newValue;
       } else {
